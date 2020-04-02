@@ -1,14 +1,33 @@
+#!/usr/bin/env python3
 
 import socket
 
-HOST = '192.168.0.15'  # Standard loopback interface address (localhost)
-PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+HOST = '127.0.0.1'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
 
-x='Loop Time  0.07 # -0.82  0.09 -9.77#'
+f=1
 
-s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-s.sendall(x.encode())
-   # data = s.recv(1024)
+status=0
+while True:
+    s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((HOST, PORT))
+    
+    while status==0:
+        print('waiting for ok')
+        data = s.recv(1024)
+        if data.decode()=='ok to send':
+            status=1
+     
+    #can use pass
+    s.sendall(b'send')
 
-#print('Received', repr(data))
+    status=0    
+    
+
+
+
+
+
+
+    
+    
