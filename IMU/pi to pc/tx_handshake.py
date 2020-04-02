@@ -51,26 +51,26 @@ magXmax =  0
 magYmax =  0
 magZmax =  0
 
+global gyroXangle
+global gyroYangle
+global gyroZangle
+
 gyroXangle = 0.0
 gyroYangle = 0.0
 gyroZangle = 0.0
-CFangleX = 0.0
-CFangleY = 0.0
-CFangleZ = 0.0
-
 
 
 IMU.detectIMU()     #Detect if BerryIMUv1 or BerryIMUv2 is connected.
 IMU.initIMU()       #Initialise the accelerometer, gyroscope and compass
 
 
-a = datetime.datetime.now()
+#a = datetime.datetime.now()
 # Get I2C bus
 bus = smbus.SMBus(1)
 
 
 def temp_press():
-
+   
     # BMP280 address, 0x77
     # Read data back from 0x88(136), 24 bytes
     b1 = bus.read_i2c_block_data(0x77, 0x88, 24)
@@ -156,8 +156,14 @@ def temp_press():
 
     return cTemp, pressure
 
-#def read_sensors():
-while True:
+def read_sensors():
+#while True:
+    global gyroXangle
+    global gyroYangle
+    global gyroZangle
+
+    a = datetime.datetime.now()
+
     #Read the accelerometer,gyroscope and magnetometer values
     ACCx = IMU.readACCx()
     ACCy = IMU.readACCy()
@@ -221,8 +227,9 @@ while True:
     
     
     
-    print(outputString)
-
+    #print(outputString)
+    return outputString
+'''
     s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
     s.sendall(outputString.encode())
@@ -231,5 +238,32 @@ while True:
 
     #slow program down a bit, makes the output more readable
     time.sleep(0.01)
+'''
+
+s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+    
+
+while True:
+    
+    outputString=read_sensors()
+    
+    status=0
+    while status==0:
+        print('waiting for ok to send')
+        data = s.recv(1024)
+        print(data.decode())
+        if data.decode()=='ok to send':
+            status=1
+     
+    #can use pass
+    s.sendall(outputString.encode())
+    status=0    
+    
+    #slow program down a bit, makes the output more readable
+    #time.sleep(0.01)
+    
+    
+
 
 
